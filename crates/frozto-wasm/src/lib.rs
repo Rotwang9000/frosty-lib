@@ -1,28 +1,18 @@
-//! WASM bindings for Zcash Sapling and Orchard threshold signing.
-//!
-//! Exposes DKG, signing, resharing, key import, address derivation,
-//! transaction building, and Merkle tree operations via `wasm-bindgen`.
-
-mod ceremony_metadata;
 mod codec;
 mod cross_verify;
 mod key_import;
 mod keygen;
 mod keyshare;
-mod orchard_keys;
-mod orchard_session;
+mod orchard;
 mod reshare;
-mod sapling;
 pub mod session;
 mod sign;
 mod tree;
-mod tx;
-mod shielding_tx;
 
-use reddsa::frost::redjubjub::JubjubBlake2b512;
+use reddsa::frost::redpallas::PallasBlake2b512;
 
-pub(crate) type J = JubjubBlake2b512;
-pub(crate) type Identifier = frost_core::Identifier<J>;
+pub(crate) type P = PallasBlake2b512;
+pub(crate) type Identifier = frost_core::Identifier<P>;
 
 pub(crate) fn to_js_err<E: std::fmt::Debug>(e: E) -> wasm_bindgen::JsError {
     wasm_bindgen::JsError::new(&format!("{:?}", e))
@@ -38,7 +28,7 @@ pub(crate) fn set_bytes(obj: &js_sys::Object, key: &str, data: &[u8]) {
 }
 
 #[cfg(test)]
-type Scalar = frost_core::Scalar<J>;
+type Scalar = frost_core::Scalar<P>;
 
 #[cfg(test)]
 pub(crate) fn zeroize_scalar_vec(v: &mut Vec<Scalar>) {
